@@ -19,13 +19,15 @@ class UserRepository {
         });
     }
 
-    getOne(username) {
-        this.db.get(`SELECT * FROM password WHERE username = '${username}'`, (err, row) => {
-            if(err) {
-                console.error(err)
-            }
-            return row
-        });
+    async getOne(username) {
+        return new Promise((resolve, reject) => {
+            this.db.get(`SELECT * FROM user WHERE username = '${username}'`, (err, row) => {
+                if(err) {
+                    reject(err)
+                }
+                resolve(row)
+            });
+        })
     }
 }
 

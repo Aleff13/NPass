@@ -10,9 +10,9 @@ const getInputValues = () => {
   return {inputNameValue, inputPasswordValue}
 }
 
-const {inputNameValue, inputPasswordValue} = getInputValues()
-
 signBtn.addEventListener('click', () => {
-  console.log(inputNameValue, inputPasswordValue)
-  window.electronAPI.createDb(inputNameValue, inputPasswordValue)
+  const inputNameValue = inputName.value
+  const inputPasswordValue = inputPassword.value
+
+  window.electronAPI.login(inputNameValue, inputPasswordValue)
 })

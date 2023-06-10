@@ -3,35 +3,36 @@ const path = require('path');
 const { UserRepository } = require('./repositories/user')
 const { PasswordRepository } = require('./repositories/password')
 const { Crypt } = require('./services/crypt')
+const { Hash } = require('./services/hash')
+
 // Handle creating/removing shortcuts on Windows when installing/uninstalling.
 if (require('electron-squirrel-startup')) {
   app.quit();
 }
 
-const loadDb = (event, username, password) => {
+const hash = new Hash()
+const crypt = new Crypt()
+
+const login = async (event, username, password) => {
   const userRepository = new UserRepository()
-  const passwordRepository = new PasswordRepository()
 
   userRepository.init()
-  userRepository.createOne(username, password)
+  const user = await userRepository.getOne(username)
 
-  passwordRepository.init()
-  passwordRepository.createOne(username, password)
-  passwordRepository.getOne(username)
-  passwordRepository.getAll(username)
+  const hashedPassword = await hash.hash(password)
 
-  const crypt = new Crypt()
+  if (!user?.username) {
+    userRepository.createOne(username, hashedPassword)
+    crypt.generateKeys()
+    return
+  }
 
-  crypt.generateKeys()
-  crypt.loadKeys()
-
-  console.log(1)
-
-  const encryptMsg = crypt.encrypt('olaaa')
-  
-  console.log(2)
-
-  const decryptMsg = crypt.decrypt(encryptMsg)
+  const hasAuthorization = await hash.checkHash(user.password, password)
+  if (!hasAuthorization) {
+    return
+  }
+    
+  console.log('login')
 }
 
 const createWindow = () => {
@@ -45,7 +46,7 @@ const createWindow = () => {
     },
   });
 
-  ipcMain.on('createDb', loadDb)
+  ipcMain.on('login', login)
 
   // and load the index.html of the app.
   mainWindow.loadFile(path.join(__dirname, 'index.html'));

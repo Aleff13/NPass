@@ -3,5 +3,5 @@
 const { contextBridge, ipcRenderer } = require('electron')
 
 contextBridge.exposeInMainWorld('electronAPI', {
-  createDb: (username, password) => ipcRenderer.send('createDb', username, password)
+  login: (username, password) => ipcRenderer.send('login', username, password)
 })
