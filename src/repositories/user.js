@@ -18,6 +18,15 @@ class UserRepository {
             }
         });
     }
+
+    getOne(username) {
+        this.db.get(`SELECT * FROM password WHERE username = '${username}'`, (err, row) => {
+            if(err) {
+                console.error(err)
+            }
+            return row
+        });
+    }
 }
 
 exports.UserRepository = UserRepository
