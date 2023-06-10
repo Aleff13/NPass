@@ -1,16 +1,37 @@
 const { app, BrowserWindow, ipcMain } = require('electron');
 const path = require('path');
 const { UserRepository } = require('./repositories/user')
-
+const { PasswordRepository } = require('./repositories/password')
+const { Crypt } = require('./services/crypt')
 // Handle creating/removing shortcuts on Windows when installing/uninstalling.
 if (require('electron-squirrel-startup')) {
   app.quit();
 }
 
-const createDb = (event) => {
+const loadDb = (event, username, password) => {
   const userRepository = new UserRepository()
+  const passwordRepository = new PasswordRepository()
+
   userRepository.init()
-  userRepository.createOne('aleff', '123')
+  userRepository.createOne(username, password)
+
+  passwordRepository.init()
+  passwordRepository.createOne(username, password)
+  passwordRepository.getOne(username)
+  passwordRepository.getAll(username)
+
+  const crypt = new Crypt()
+
+  crypt.generateKeys()
+  crypt.loadKeys()
+
+  console.log(1)
+
+  const encryptMsg = crypt.encrypt('olaaa')
+  
+  console.log(2)
+
+  const decryptMsg = crypt.decrypt(encryptMsg)
 }
 
 const createWindow = () => {
@@ -24,12 +45,11 @@ const createWindow = () => {
     },
   });
 
-  ipcMain.on('createDb', createDb)
+  ipcMain.on('createDb', loadDb)
 
   // and load the index.html of the app.
   mainWindow.loadFile(path.join(__dirname, 'index.html'));
   // Open the DevTools.
-  mainWindow.webContents.openDevTools();
 };
 
 // This method will be called when Electron has finished
