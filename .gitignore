@@ -91,4 +91,11 @@ typings/
 # Electron-Forge
 out/
 
+# Dbs
 *.db
+
+# Keys
+*.pem
+
+# python
+*.py
