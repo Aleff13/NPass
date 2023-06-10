@@ -1,5 +1,5 @@
 const rsa = require('node-rsa');
-const fs = require('fs')
+const fs = require('fs');
 
 class Crypt {
 
@@ -11,7 +11,7 @@ class Crypt {
     
     generateKeys() {
         if (this.hasKeys()) {
-            return
+            return true
         }
         
         const key = new rsa();
@@ -22,6 +22,8 @@ class Crypt {
 
         fs.writeFileSync(this._publicPath, pub)
         fs.writeFileSync(this._privatePath, priv)
+
+        return this.hasKeys()
     }
 
     loadKeys() {
@@ -31,6 +33,8 @@ class Crypt {
 
         this._rsa.importKey(fs.readFileSync(this._publicPath))
         this._rsa.importKey(fs.readFileSync(this._privatePath))
+
+        return !this._rsa.isEmpty()
     }
 
     hasKeys() {
@@ -50,8 +54,8 @@ class Crypt {
         return result
     }
 
-    decrypt(message) {
-        const result = this._rsa.decrypt(message, 'utf8')
+    decrypt(encryptedMessage) {
+        const result = this._rsa.decrypt(encryptedMessage, 'utf8')
         return result
     }
 }
