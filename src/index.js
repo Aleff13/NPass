@@ -1,4 +1,4 @@
-const { app, BrowserWindow, ipcMain } = require('electron');
+const { app, BrowserWindow, ipcMain, webContents } = require('electron');
 const path = require('path');
 const { UserRepository } = require('./repositories/user')
 const { PasswordRepository } = require('./repositories/password')
@@ -12,6 +12,8 @@ if (require('electron-squirrel-startup')) {
 
 const hash = new Hash()
 const crypt = new Crypt()
+let isLogged = false
+let mainWindow
 
 const login = async (event, username, password) => {
   const userRepository = new UserRepository()
@@ -31,13 +33,17 @@ const login = async (event, username, password) => {
   if (!hasAuthorization) {
     return
   }
-    
+  
+  isLogged = true
   console.log('login')
+  console.log(isLogged)
+
+  mainWindow.loadFile(path.join(__dirname, 'logged.html'));
 }
 
 const createWindow = () => {
   // Create the browser window.
-  const mainWindow = new BrowserWindow({
+  mainWindow = new BrowserWindow({
     width: 800,
     height: 600,
     webPreferences: {
